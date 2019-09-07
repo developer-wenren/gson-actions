@@ -16,8 +16,8 @@ import java.io.IOException;
  */
 public class CustomTypeAdapter {
     public static void main(String[] args) {
-        GsonBuilder builder =  new GsonBuilder();
-        builder.registerTypeAdapter(Student.class,new StudentAdapter());
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Student.class, new StudentAdapter());
         Gson gson = builder.create();
         String jsonString = "{\"name\":\"Mahesh\", \"rollNo\":1}";
         Student student = gson.fromJson(jsonString, Student.class);
@@ -28,7 +28,7 @@ public class CustomTypeAdapter {
 
 }
 
-class StudentAdapter extends TypeAdapter<Student>{
+class StudentAdapter extends TypeAdapter<Student> {
 
     @Override
     public Student read(JsonReader reader) throws IOException {
@@ -48,7 +48,7 @@ class StudentAdapter extends TypeAdapter<Student>{
                 token = reader.peek();
                 student.setName(reader.nextString());
             }
-            if("rollNo".equals(fieldname)) {
+            if ("rollNo".equals(fieldname)) {
                 //move to next token
                 token = reader.peek();
                 student.setRollNo(reader.nextInt());
@@ -57,6 +57,7 @@ class StudentAdapter extends TypeAdapter<Student>{
         reader.endObject();
         return student;
     }
+
     @Override
     public void write(JsonWriter writer, Student student) throws IOException {
         writer.beginObject();
