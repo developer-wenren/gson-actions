@@ -9,6 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.Test;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -76,6 +81,30 @@ public class ExcludeFieldsTest {
         assertEquals(expectedResult, jsonString);
     }
 
+    @Test
+    void test_custome_annoation() {
+        ExclusionStrategy strategy = new ExclusionStrategy() {
+            @Override
+            public boolean shouldSkipClass(Class<?> clazz) {
+                return false;
+            }
+
+            @Override
+            public boolean shouldSkipField(FieldAttributes field) {
+                return field.getAnnotation(Exclude.class) != null;
+            }
+        };
+
+        Gson gson = new GsonBuilder().addSerializationExclusionStrategy(strategy)
+                .addDeserializationExclusionStrategy(strategy)
+                .create();
+        MySubClass2 subclass = new MySubClass2(42L, "the answer", "Verbose field not to serialize");
+        MyClass2 source = new MyClass2(1L, "foo", "bar", subclass);
+        String jsonString = gson.toJson(source);
+        System.out.println(jsonString);
+//        等价于 Gson gson = new GsonBuilder().setExclusionStrategies(strategy);
+    }
+
     @Data
     @AllArgsConstructor
     class MyClass {
@@ -98,4 +127,30 @@ public class ExcludeFieldsTest {
         @Expose
         private String otherVerboseInfo;
     }
+
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@interface Exclude {
+}
+
+@Data
+@AllArgsConstructor
+class MyClass2 {
+    private long id;
+    @Exclude
+    private String name;
+    @Exclude
+    private String other;
+    private MySubClass2 subclass;
+}
+
+@Data
+@AllArgsConstructor
+class MySubClass2 {
+    private long id;
+    private String description;
+    @Exclude
+    private String otherVerboseInfo;
 }
