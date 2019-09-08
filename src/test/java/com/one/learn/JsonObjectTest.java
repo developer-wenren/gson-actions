@@ -32,4 +32,9 @@ public class JsonObjectTest {
         assertTrue(convertedObject.get("name").getAsString().equals("Baeldung"));
         assertTrue(convertedObject.get("java").getAsBoolean() == true);
     }
+
+    @Test
+    void test() {
+
+    }
 }

@@ -16,9 +16,6 @@ public class VersioningSupportTest {
         Gson gson = new GsonBuilder().setVersion(1.0).create();
         String jsonOutput = gson.toJson(versionedObject);
         System.out.println(jsonOutput);
-        System.out.println();
-
-        // 默认生成所有字段
         gson = new Gson();
         jsonOutput = gson.toJson(versionedObject);
         System.out.println(jsonOutput);

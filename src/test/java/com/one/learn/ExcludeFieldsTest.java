@@ -43,7 +43,7 @@ public class ExcludeFieldsTest {
     void test_expose() {
         MySubClass subclass = new MySubClass(42L, "the answer", "Verbose field not to serialize");
         MyClass source = new MyClass(1L, "foo", "bar", subclass);
-        Gson gson = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String s = gson.toJson(source);
         System.out.println(s);
     }

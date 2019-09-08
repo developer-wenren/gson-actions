@@ -4,11 +4,14 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,6 +39,15 @@ public class CustomSerializationTest {
         String jsonCollection = new Gson().toJson(sourceCollection);
         String expectedResult = "[{\"intValue\":1,\"stringValue\":\"one\"},{\"intValue\":2,\"stringValue\":\"two\"}]";
         assertEquals(expectedResult, jsonCollection);
+    }
+
+    @Test
+    void test_dateSerializer() {
+        MyObject myObject = new MyObject(new Date(), "one");
+        Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateSerializer()).create();
+        String json = gson.toJson(myObject);
+        String exceptedJson = "{\"date\":\"2019-09-08\",\"name\":\"one\"}";
+        Assertions.assertEquals(exceptedJson, json);
     }
 
     @Test
@@ -77,6 +89,15 @@ public class CustomSerializationTest {
     }
 }
 
+class DateSerializer implements JsonSerializer<Date> {
+    SimpleDateFormat dateTime = new SimpleDateFormat("yyyy-MM-dd");
+
+    @Override
+    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+        return new JsonPrimitive(dateTime.format(src));
+    }
+}
+
 class IgnoringFieldsNotMatchingCriteriaSerializer
         implements JsonSerializer<SourceClass> {
     @Override
@@ -104,7 +125,6 @@ class IgnoringFieldsSerializer implements JsonSerializer<SourceClass> {
         String intValue = "intValue";
         JsonObject jObject = new JsonObject();
         jObject.addProperty(intValue, src.getIntValue());
-
         return jObject;
     }
 }
@@ -124,6 +144,7 @@ class DifferentNameSerializer implements JsonSerializer<SourceClass> {
     }
 }
 
+
 @AllArgsConstructor
 @Data
 class SourceClass {
@@ -131,4 +152,17 @@ class SourceClass {
     private String stringValue;
 
     // standard getters and setters
+}
+
+class MyObject {
+    private Date date;
+    private String name;
+
+    public MyObject(Date date, String name) {
+        this.date = date;
+        this.name = name;
+    }
+
+    public MyObject() {
+    }
 }

@@ -18,10 +18,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * @date 2019/09/07
  */
 public class ListTest {
+    @Test
+    void test() {
+        List<String> strings = Arrays.asList("1", "2", "3", "4");
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(strings);
+        System.out.println(jsonString);
+        List list = gson.fromJson(jsonString, List.class);
+        System.out.println(list);
+    }
 
     @Test
     public void givenListOfMyClass_whenSerializing_thenCorrect() {
-        List<MyClass> list = Arrays.asList(new MyClass(1, "name1"), new MyClass(2, "name2"));
+        List<Person> list = Arrays.asList(new Person(1, "name1"), new Person(2, "name2"));
         Gson gson = new Gson();
         String jsonString = gson.toJson(list);
         String expectedString = "[{\"id\":1,\"name\":\"name1\"},{\"id\":2,\"name\":\"name2\"}]";
@@ -29,23 +38,35 @@ public class ListTest {
     }
 
     @Test
+    public void givenJsonString_whenCorrectDeserializing_() {
+        Gson gson = new Gson();
+        String inputString = "[{\"id\":1,\"name\":\"one\"},{\"id\":2,\"name\":\"two\"}]";
+        Type listOfMyClassObject = new TypeToken<List<Person>>() {
+        }.getType();
+        List<Person> outputList = gson.fromJson(inputString, listOfMyClassObject);
+        int id = outputList.get(0).getId();
+        assertEquals(1, id);
+        assertEquals("one", outputList.get(0).getName());
+    }
+
+    @Test
     public void givenJsonString_whenIncorrectDeserializing_thenThrowClassCastException() {
         Gson gson = new Gson();
-        String inputString = "[{\"id\":1,\"name\":\"name1\"},{\"id\":2,\"name\":\"name2\"}]";
-        List<MyClass> outputList = gson.fromJson(inputString, ArrayList.class);
+        String inputString = "[{\"id\":1,\"name\":\"one\"},{\"id\":2,\"name\":\"two\"}]";
+        List<Person> outputList = gson.fromJson(inputString, List.class);
         assertThrows(ClassCastException.class, () -> {
-            outputList.get(0).getId();
+            int id = outputList.get(0).getId();
         });
     }
 
     @Test
-    public void givenJsonString_whenDeserializing_thenReturnListOfMyClass() {
-        String inputString = "[{\"id\":1,\"name\":\"name1\"},{\"id\":2,\"name\":\"name2\"}]";
-        List<MyClass> inputList = Arrays.asList(new MyClass(1, "name1"), new MyClass(2, "name2"));
-        Type listOfMyClassObject = new TypeToken<ArrayList<MyClass>>() {
+    public void givenJsonString_whenDeserializing_thenReturnListOfPerson() {
+        String inputString = "[{\"id\":1,\"name\":\"one\"},{\"id\":2,\"name\":\"two\"}]";
+        List<Person> inputList = Arrays.asList(new Person(1, "one"), new Person(2, "two"));
+        Type listOfMyClassObject = new TypeToken<List<Person>>() {
         }.getType();
         Gson gson = new Gson();
-        List<MyClass> outputList = gson.fromJson(inputString, listOfMyClassObject);
+        List<Person> outputList = gson.fromJson(inputString, listOfMyClassObject);
         assertEquals(inputList, outputList);
     }
 
@@ -56,9 +77,7 @@ public class ListTest {
         List<Animal> inList = new ArrayList<>();
         inList.add(new Dog());
         inList.add(new Cow());
-
         String jsonString = new Gson().toJson(inList);
-
         assertEquals(expectedString, jsonString);
     }
 
@@ -109,11 +128,11 @@ class AnimalDeserializer implements JsonDeserializer<Animal> {
 }
 
 @Data
-class MyClass {
+class Person {
     private int id;
     private String name;
 
-    public MyClass(int id, String name) {
+    public Person(int id, String name) {
         this.id = id;
         this.name = name;
     }

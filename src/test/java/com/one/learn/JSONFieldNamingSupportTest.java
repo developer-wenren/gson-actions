@@ -1,6 +1,5 @@
 package com.one.learn;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
@@ -33,7 +32,7 @@ public class JSONFieldNamingSupportTest {
     @Test
     void test() {
         SomeObject someObject = new SomeObject("first", "second");
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        Gson gson = new GsonBuilder().create();
         String jsonRepresentation = gson.toJson(someObject);
         System.out.println(jsonRepresentation);
         SomeObject someObject1 = gson.fromJson(jsonRepresentation, SomeObject.class);

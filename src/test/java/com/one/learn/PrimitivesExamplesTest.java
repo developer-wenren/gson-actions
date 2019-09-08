@@ -32,6 +32,5 @@ class PrimitivesExamplesTest {
         assertEquals("abc", str);
         String[] anotherStr = gson.fromJson("[\"abc\"]", String[].class);
         assertEquals("abc", anotherStr[0]);
-
     }
 }

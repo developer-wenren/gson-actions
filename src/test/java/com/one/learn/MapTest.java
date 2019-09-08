@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -28,10 +29,21 @@ public class MapTest {
      */
     @Test
     void tet_map() {
-        String jsonString = "{'employee.name':'Bob','employee.salary':10}";
+        String jsonString = "{'employee.name':'one','employee.salary':10}";
+        Gson gson = new Gson();
+        Map map = gson.fromJson(jsonString, HashMap.class);
+        assertEquals(2, map.size());
+        assertEquals("one", map.get("employee.name"));
+        assertEquals(Double.class, map.get("employee.salary").getClass());
+    }
+
+    @Test
+    void tet_nest_map() {
+        String jsonString = "{\"employee.name\":\"one\",\"employee.salary\":10,\"map\": {\"age\": 10}}";
         Gson gson = new Gson();
         Map map = gson.fromJson(jsonString, Map.class);
-        assertEquals(2, map.size());
+        assertEquals(3, map.size());
+        assertEquals("one", map.get("employee.salary").getClass());
         assertEquals(Double.class, map.get("employee.salary").getClass());
     }
 
