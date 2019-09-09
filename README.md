@@ -1,17 +1,19 @@
-# 除了FastJson，你还有选择：Gson简易指南
+# 除了FastJson,你还有的选Gson简易指南
+
 ## 前言
 
-这个周末被几个技术博主的同一篇公众号文章  [fastjson又被发现漏洞，这次危害可导致服务瘫痪！](https://mp.weixin.qq.com/s/yVzZTTR5R6QbspTg5WI5hg) 刷屏，离之前 FastJson 漏洞事件没多久，FastJson 又出现严重 Bug。目前项目中不少使用了 FastJson 做对象与JSON数据的转换，又需要更新版本重新部署，可以说是费时费力。与此同时，也带给我新的思考：面对大量功能强大的开源库，如果没有大量时间和实践的验证，我们不能盲目地引入到项目之中，众多开源框架中某个不稳定因素就足以让一个项目遭受灭顶之灾。趁着周末，学习下同样序列化与反序列化功能的开源框架 Gson，并且打算将今后项目使用 FastJson 的地方逐渐换成使用 Gson，记录下学习总结的内容，希望对小伙伴也有所帮助。
+这个周末被几个技术博主的同一篇公众号文章  [fastjson又被发现漏洞，这次危害可导致服务瘫痪！](https://mp.weixin.qq.com/s/yVzZTTR5R6QbspTg5WI5hg) 刷屏，离之前漏洞事件没多久，fastjson 又出现严重 Bug。目前项目中不少使用了 fastjson 做对象与JSON数据的转换，又需要更新版本重新部署，可以说是费时费力。与此同时，也带给我新的思考，面对大量功能强大的开源库，我们不能盲目地引入到项目之中，众多开源框架中某个不稳定因素就足以让一个项目遭受灭顶之灾。趁着周末，在家学习下同样具备JSON与对象转换功能的优秀开源框架 Gson，并且打算将今后项目使用 fastjson 的地方逐渐换成使用 Gson，记录下学习总结的内容，希望对小伙伴也有所帮助。
 
-> 本文所涉及所有代码片段均在下面仓库中，欢迎感兴趣的小伙伴参考学习：
+> 本文所涉及所有代码片段均在下面仓库中，感兴趣的小伙伴欢迎参考学习：
 >
 > https://github.com/wrcj12138aaa/gson-actions
 >
-> 环境支持：
+> 版本支持：
 >
 > - JDK 8
-> - gson 2.8.5
-> - junit 5.5.1
+> - Gson 2.8.5
+> - JUnit 5.5.1
+> - Lomok 1.18.8
 
 ## Gson 简介
 
@@ -19,9 +21,9 @@
 
 > Gson is a Java library that can be used to convert Java Objects into their JSON representation. It can also be used to convert a JSON string to an equivalent Java object。
 
-从描述可以看出，Gson 是用于将 Java 对象与 JSON格式字符串数据相互转换的 Java 库。它起初在Google 内部广泛使用在 Android 平台 和 Java 服务端上。2008 年开源之后，成为了谷歌又一个被广泛使用的开源框架，截止目前*(2019.09.08)* 在GitHub 上已有1W6 多星，相同作用的类库还有 Spring Framework 中集成的 Jackson，以及阿里开源的 FastJson等。
+从描述可以看出，Gson 是用于将 Java 对象与 JSON格式字符串数据相互转换的 Java 库。它起初在Google 内部广泛使用在 Android 平台 和 Java 服务端上。2008 年开源之后，成为了谷歌又一个被广泛使用的开源框架，截止目前*(2019.09.08)* 在GitHub 上已有1W6 多星，相同作用的类库还有 Spring Framework 中集成的 Jackson，以及阿里开源的 fastjson等。
 
-在特性方面，Gson 提供简易的API `fromJson/toJson` 来实现 Java 与 JSON 之间的转换，并且能生成紧凑，可读的 JSON 字符串输出，还支持复杂对象转换和丰富的自定义表示，在日常开发中能满足我们绝大部分的 JSON 处理需求。
+在特性方面，Gson 提供简易的API `fromJson/toJson` 来实现 Java 与 JSON 之间的转换，并且能生成紧凑，可读的 JSON 字符串输出，还支持复杂对象转换和丰富的自定义表示，足以满足在日常开发中我们绝大部分的 JSON 数据处理需求。
 
 > 我们通常将对象与JSON字符串间的转换称之为序列化和反序列化(Serialization/Deserialization)。将 对象转化成 JSON字符串的过程称为序列化，将JSON 字符串转化成对象的过程称为反序列化。![](https://tva1.sinaimg.cn/large/006y8mN6gy1g6s3u2bfxxj30oa0ewwfn.jpg)
 
@@ -42,7 +44,7 @@ Gson 对象的创建主要有两种方式：
 
 #### 简单对象的序列化
 
-我们可以通过下面的例子来看下通过上述两种方式序列化 Java 对象的效果：
+我们可以通过下面的例子来看下通过上述两种方式序列化 Java 对象的不同效果：
 
 ```java
 public class ResultTest {
@@ -72,11 +74,11 @@ public class ResultTest {
 }
 ```
 
-运行上方测试用例，在控制台可以看到如下日志输出：
+运行该测试用例，在控制台可以看到如下日志输出：
 
 ![](https://tva1.sinaimg.cn/large/006y8mN6gy1g6s51fgqp5j30o2090q3h.jpg)
 
-从结果可以看出，默认的 Gson 对象行为序列化对象时会将 null 值的字段忽略，而 `com.google.gson.GsonBuilder#serializeNulls` 方法将允许 Gson 对象序列化 null 字段；并且正常序列化后的 JSON 字符串是紧凑格式，节省字符串内存，使用 `com.google.gson.GsonBuilder#setPrettyPrinting` 方法之后最终输出的 JSON 字符串是更易读的格式。当然除了这两个方法，GsonBuilder 还提供了许多定制序列化和反序列化行为的API，我们将后面的内容进一步讲解。
+从结果可以看出，默认的 Gson 对象行为序列化对象时会将 `null` 值的字段忽略，而 `com.google.gson.GsonBuilder#serializeNulls` 方法将允许 Gson 对象序列化 `null` 字段；并且正常序列化后的 JSON 字符串是紧凑格式，节省字符串内存，使用 `com.google.gson.GsonBuilder#setPrettyPrinting` 方法之后最终输出的 JSON 字符串是更易读的格式。当然除了这两个方法，GsonBuilder 还提供了许多定制序列化和反序列化行为的API，我们将后面的内容进一步讲解。
 
 #### JosnObject 生成 JSON
 
@@ -95,7 +97,7 @@ void test_jsonObject_serialization() {
 }
 ```
 
-JsonObject 使用 `addProperty(property,value)` 方法只能用来添加 String，Number，Boolean，Character这四类数据， 因为内部是调用 `com.google.gson.JsonObject#add`, 将 value 封装成了 JsonPrimitive 对象，然后保存到了内部自定义的 `LinkedTreeMap` 集合变量 members 中；如果需要在 JsonObject 对象上添加其他对象时，就需要直接使用 `add(String property, JsonElement value)` 方法添加一个 JsonElement 对象，其中 JsonElement 是一个抽象类，JsonObject 和 JsonPrimitive 都继承了JsonElement，所以我们最终通过另外的 JsonObject 对象来作为原 JsonObject 上的属性对象：
+JsonObject 使用 `addProperty(property,value)` 方法只能用来添加 String，Number，Boolean，Character这四类数据， 因为内部是调用 `com.google.gson.JsonObject#add`, 将 value 封装成了 JsonPrimitive 对象，然后保存到了内部自定义的 `LinkedTreeMap` 集合变量 members 中；如果需要在 JsonObject 对象上添加其他对象时，就需要直接使用 `add(String property, JsonElement value)` 方法添加一个 JsonElement 对象。这里的 JsonElement 是一个抽象类，JsonObject 和 JsonPrimitive 都继承了JsonElement，所以我们最终通过另外的 JsonObject 对象来作为原 JsonObject 上的属性对象：
 
 ```java
 Gson gson = new Gson();
@@ -128,7 +130,7 @@ void test_deserialization() {
 
 #### 反序列化 Map
 
-除了将JSON 字符串序列化为自定义的Java 对象之外，我们有时还可能需要转为 Map 集合，Gson 提供了对 Map 集合的转换，使用起来也十分简单：
+除了将JSON 字符串序列化为自定义的Java 对象之外，我们还可以转为 Map 集合，Gson 提供了对 Map 集合的转换，使用起来也十分简单：
 
 ```java
 @Test
@@ -142,13 +144,13 @@ void test_map() {
 }
 ```
 
-需要注意的是转换后的 Map 对象真实类型并不是我们经常用的 HashMap，而是 Gson 自定义的实现Map 接口的`LinkedTreeMap` ，它存储键值对，在新增和删除上实现上进行了优化，并且将存储键值对的顺序作为遍历顺序，也就是先存入的先被遍历到。除此之外，JSON 字符串里的数值型数据都会转转换为 Double 类型，而 `true/false` 数据被会被转换成 Boolean 类型，具体判断依据可以参考 `com.google.gson.internal.bind.ObjectTypeAdapter#read` 方法实现。
+需要注意的是转换后的 Map 对象真实类型并不是我们经常用的 HashMap，而是 Gson 自定义集合`LinkedTreeMap` ，它实现Map 接口来存储键值对，在新增和删除上实现上进行了优化，并且将存储键值对的顺序作为遍历顺序，也就是先存入的先被遍历到。除此之外，JSON 字符串里的数值型数据都会转转换为 Double 类型，而 `true/false` 数据被会被转换成 Boolean 类型，具体判断依据可以参考 `com.google.gson.internal.bind.ObjectTypeAdapter#read` 方法的实现。
 
 ### JSON 与 Array，List 转换
 
 #### JSON 转换 Array
 
-当我们正对 JSON 数据进行数组转换时，类似普通对象转换的方式即可，  `toJson` 方法直接使用转为 JSON 数据，`fromJson` 指定数组类型转换为对应类型的数组。
+当我们正对 JSON 数据进行数组转换时，类似普通对象转换的方式即可， `toJson` 方法直接使用转为 JSON 数据，`fromJson` 指定数组类型转换为对应类型的数组。
 
 ```java
 @Test
@@ -381,7 +383,7 @@ class MySubClass {
 }
 ```
 
-> 在 Gson 中 `transient` 关键字修饰的字段默认不会被序列化和反序列化，这个行为与 Java 原生的序列化和反序列化操作一致。
+> 在 Gson 中 `transient` 关键字修饰的字段默认不会被序列化和反序列化，这个行为是与 Java 原生的序列化和反序列化操作一致的。
 
 ### @Since
 
@@ -417,7 +419,7 @@ class VersionedClass {
 
 ### @SerializedName
 
-这个注解使用起来比较简单，也很有用。@SerializedName  指定了成员字段被序列化和反序列化时所采用的名称，下面是具体使用方式：
+这个注解使用起来比较简单，也很有用。@SerializedName  指定了成员字段被序列化和反序列化时所采用的名称下面是具体使用方式：
 
 ```java
 public class JSONFieldNamingSupportTest {
@@ -447,13 +449,21 @@ public class JSONFieldNamingSupportTest {
 
 ### @JsonAdapter
 
-不同于上面的注解，`@JsonAdapter` 作用于类上，主要作用就是代替  `GsonBuilder.registerTypeAdapter` 方法的执行，直接通过 `@JsonAdapter(aClass.class)` 方式指定 JsonDeserializer 对象或者 JsonSerializer 对象，可以起到相同的想过，并且优先级比`GsonBuilder.registerTypeAdapter`的优先级更高，由于只是将 `registerTypeAdapter`方法执行简化成了注解方法，这里就不再演示，直接在前文**自定义反序列化**一节的 Result 类上使用就可以看到效果。
+不同于上面的注解，`@JsonAdapter` 只作用于类上，主要作用就是代替  `GsonBuilder.registerTypeAdapter` 方法的执行，直接通过 `@JsonAdapter(aClass.class)` 方式指定 JsonDeserializer 对象或者 JsonSerializer 对象，可以起到相同的想过，并且优先级比`GsonBuilder.registerTypeAdapter`的优先级更高，由于只是将 `registerTypeAdapter`方法执行简化成了注解方法，这里就不再演示，直接在前文**自定义反序列化**一节的 Result 类上使用就可以看到效果。
 
 ## 结语
 
-本文主要学习总结了 Gson 框架的序列化和反序列操作使用方式，以及介绍了 Gson 相关特性用法，希望对处理 JSON 数据头疼的小伙伴有所帮助。
+本文主要学习总结了 Gson 框架的序列化和反序列操作使用方式，以及介绍了 Gson 多种特性用法，希望对处理 JSON 数据感到头疼的小伙伴有所帮助。
 
 ![](https://tva1.sinaimg.cn/large/006y8mN6gy1g6skkvbjgnj30p00dwjt5.jpg)
+
+## 推荐阅读
+
+- [一文掌握 Spring Boot Profiles](https://mp.weixin.qq.com/s/TfA8rSwYNpW3YV_N8oLJnw)
+- [如何优雅关闭 Spring Boot 应用](https://mp.weixin.qq.com/s/-t2hrrVMBpPmVEzDcC8J5w)
+- [需要接口管理的你了解一下？](https://mp.weixin.qq.com/s/uWRnRhH4et-XSD101Xh6LQ)
+- [Java 之 Lombok 必知必会](https://mp.weixin.qq.com/s/2qkNz4VPgnixXjaVYUkvvQ)
+- [Java 微服务新生代之 Nacos](https://mp.weixin.qq.com/s/vS36glyNoD26GL6cbNs5Qw)
 
 ## 参考资料
 
