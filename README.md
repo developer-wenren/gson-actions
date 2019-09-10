@@ -449,7 +449,7 @@ public class JSONFieldNamingSupportTest {
 
 ### @JsonAdapter
 
-不同于上面的注解，`@JsonAdapter` 只作用于类上，主要作用就是代替  `GsonBuilder.registerTypeAdapter` 方法的执行，直接通过 `@JsonAdapter(aClass.class)` 方式指定 JsonDeserializer 对象或者 JsonSerializer 对象，可以起到相同的想过，并且优先级比`GsonBuilder.registerTypeAdapter`的优先级更高，由于只是将 `registerTypeAdapter`方法执行简化成了注解方法，这里就不再演示，直接在前文**自定义反序列化**一节的 Result 类上使用就可以看到效果。
+不同于上面的注解，`@JsonAdapter` 主要作用就是代替  `GsonBuilder.registerTypeAdapter` 方法的执行，直接通过 `@JsonAdapter(aClass.class)` 方式指定 JsonDeserializer 对象或者 JsonSerializer 对象，可以起到相同的想过，并且优先级比`GsonBuilder.registerTypeAdapter`的优先级更高，由于只是将 `registerTypeAdapter`方法执行简化成了注解方法，这里就不再演示，直接在前文**自定义反序列化**一节的 Result 类上使用就可以看到效果。
 
 ## 结语
 
